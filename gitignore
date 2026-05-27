@@ -2,7 +2,6 @@ node_modules/
 .env
 .env.local
 .env.*.local
-firebase-key.json
 *.log
 *.pem
 .DS_Store
