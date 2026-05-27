@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: qeyko-capital-bot
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        scope: run
+      - key: ADMIN_GROUP_ID
+        scope: run
+      - key: CLIENT_GROUP_ID
+        scope: run
+      - key: BOT_USERNAME
+        scope: run
+      - key: FIREBASE_PROJECT_ID
+        scope: run
+      - key: FIREBASE_PRIVATE_KEY_ID
+        scope: run
+      - key: FIREBASE_PRIVATE_KEY
+        scope: run
+      - key: FIREBASE_CLIENT_EMAIL
+        scope: run
+      - key: FIREBASE_CLIENT_ID
+        scope: run
+      - key: FIREBASE_AUTH_URI
+        scope: run
+      - key: FIREBASE_TOKEN_URI
+        scope: run
+      - key: FIREBASE_AUTH_PROVIDER_X509_CERT_URL
+        scope: run
+      - key: FIREBASE_CLIENT_X509_CERT_URL
+        scope: run
+      - key: MORALIS_API_KEY
+        scope: run
+      - key: TRONGRID_API_KEY
+        scope: run
+      - key: NODE_ENV
+        value: production
+        scope: run
