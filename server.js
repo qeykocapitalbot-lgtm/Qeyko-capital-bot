@@ -2,25 +2,10 @@ const { Telegraf } = require('telegraf');
 const admin = require('firebase-admin');
 const axios = require('axios');
 require('dotenv').config();
-
-// Lide sèl blòk JSON Firebase nou mete sou Render 
-let serviceAccount;
-try {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-} catch (e) {
-  // Si li kole sou plizyè liy, sa ap ranje l otomatikman
-  try {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\n/g, '\\n'));
-  } catch (err) {
-    console.error("Erè fòma JSON nan Environment Variables:", err);
-  }
-}
-
+const serviceAccount = require('./firebase-key.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
-});
-
+  databaseURL: `https://${serviceAccount.project_id}.firebaseio.com
 const db = admin.firestore();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const ADMIN_GROUP_ID = parseInt(process.env.ADMIN_GROUP_ID);
