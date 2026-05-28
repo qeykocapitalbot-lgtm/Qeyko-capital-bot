@@ -3,8 +3,18 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 require('dotenv').config();
 
-// Lide sèl blòk JSON Firebase nou mete sou Render la
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// Lide sèl blòk JSON Firebase nou mete sou Render 
+let serviceAccount;
+try {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} catch (e) {
+  // Si li kole sou plizyè liy, sa ap ranje l otomatikman
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\n/g, '\\n'));
+  } catch (err) {
+    console.error("Erè fòma JSON nan Environment Variables:", err);
+  }
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
