@@ -1,6 +1,6 @@
 {
   "name": "qeyko-capital-bot",
-  "version": "1.0.0",
+  "version": "1.0.2")
   "description": "Qeyko Capital - Telegram Mini App for Crypto Investment with Firebase, Moralis, and TronGrid",
   "main": "server.js",
   "type": "commonjs",
