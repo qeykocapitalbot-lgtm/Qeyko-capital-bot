@@ -1,34 +1,16 @@
 {
-  "name": "qeyko-capital-bot",
-  "version": "1.0.2")
-  "description": "Qeyko Capital - Telegram Mini App for Crypto Investment with Firebase, Moralis, and TronGrid",
+  "name": "live-crypto-bot",
+  "version": "1.0.2",
+  "description": "Telegram Investment Bot",
   "main": "server.js",
-  "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node server.js"
   },
-  "keywords": [
-    "telegram",
-    "bot",
-    "crypto",
-    "investment",
-    "firebase",
-    "moralis",
-    "blockchain"
-  ],
-  "author": "Qeyko Capital",
-  "license": "MIT",
   "dependencies": {
-    "firebase-admin": "^12.0.0",
-    "telegraf": "^4.15.0",
     "axios": "^1.6.0",
-    "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
-  "engines": {
-    "node": "18.x"
+    "dotenv": "^16.3.1",
+    "firebase-admin": "^11.11.1",
+    "telegraf": "^4.15.3"
   }
 }
+
