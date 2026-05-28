@@ -1,6 +1,6 @@
 {
   "name": "live-crypto-bot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Telegram Investment Bot",
   "main": "server.js",
   "scripts": {
