@@ -1,0 +1,1 @@
+{"name": "live-crypto-bot", "version": "1.0.6", "description": "Telegram Bot", "main": "server.js", "scripts": {"start": "node server.js"}, "dependencies": {"axios": "^1.6.0", "dotenv": "^16.3.1", "express": "^4.18.2", "firebase-admin": "^11.11.1", "telegraf": "^4.15.3"}}
