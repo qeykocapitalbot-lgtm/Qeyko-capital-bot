@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Live Crypto Bot - Investissement</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.5.3/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght=400;600;700;800&family=DM+Sans:wght=300;400;500;600&display=swap" rel="stylesheet"/>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const firebaseConfig = {apiKey: "AIzaSyC-MfhsLGezx1v5Lx1pxOTzGf7V0PcKQqs",authDomain: "qeyko-capital-bot.firebaseapp.com",projectId: "qeyko-capital-bot",storageBucket: "qeyko-capital-bot.firebasestorage.app",messagingSenderId: "299374324488",appId: "1:299374324488:web:de1550eb9c845cc6ca9abd"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+window._firebaseApp = app;
+window._db = db;
+window._auth = auth;
+window._fbFns = { doc, getDoc, setDoc };
+signInAnonymously(auth).catch(err => console.log("Auth:", err));
+</script>
+<style>
+:root {--blue: #0066FF;--white: #FFFFFF;--gray: #F5F5F5;--dark: #1F1F1F;--success: #00AA00;--radius: 12px;}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {font-family: 'DM Sans', sans-serif;background: var(--gray);color: var(--dark);min-height: 100vh;}
+.header {background: var(--blue);color: white;padding: 16px 20px;display: flex;align-items: center;gap:10px;position: sticky;top:0;z-index:50;}
+.header-title {flex:1;font-weight:700;font-size:1.1rem;text-align:center;}
+.page { display:none; padding: 16px 16px 100px; }
+.page.active { display:block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.card {background: white;border-radius: var(--radius);padding: 16px;margin-bottom: 12px;box-shadow: 0 2px 8px rgba(0,0,0,0.08);}
+.balance-card {background: linear-gradient(135deg, var(--blue), #0052CC);color: white;border-radius: var(--radius);padding: 20px;margin-bottom: 16px;position: relative;}
+.bal-label {font-size:0.85rem;opacity:0.9;}
+.bal-amount {font-size:2.2rem;font-weight:800;margin:6px 0;}
+.bal-actions {display:flex;gap:10px;margin-top:12px;}
+.bal-btn {flex:1;background: rgba(255,255,255,0.25);border: 1px solid rgba(255,255,255,0.4);color: white;border-radius: 8px;padding: 10px;font-size:0.85rem;font-weight:600;cursor:pointer;transition: all 0.2s;text-align: center;}
+.bottom-nav {position: fixed;bottom: 0;left:0;right:0;height: 60px;background: white;border-top: 1px solid #eee;display: flex;z-index: 100;}
+.nav-btn {flex:1;display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 3px;cursor: pointer;background: none;border: none;font-size: 0.65rem;color: #666;}
+.nav-btn.active { color: var(--blue); font-weight: 600; }
+.input-field {width:100%;background: #F4F6FA;border: 1px solid #E2E8F0;border-radius: 8px;padding: 14px;font-size: 0.95rem;color: var(--dark);outline:none;margin-bottom:12px;}
+.submit-btn {width:100%;background: var(--blue);color:white;border:none;border-radius: 8px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2);text-align: center;}
+.crypto-item {background: var(--white);border: 1px solid #eee;border-radius: var(--radius);padding: 16px;margin-bottom: 10px;display: flex;align-items: center;justify-content: space-between;cursor:pointer;box-shadow: 0 2px 5px rgba(0,0,0,0.03);}
+.crypto-info {display: flex;align-items: center;gap: 12px;font-weight: 600;font-size: 0.95rem;}
+.crypto-icon {width: 28px;height: 28px;object-fit: contain;}
+.modal {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;}
+.modal.open { display:flex; }
+.modal-content {background: white;border-radius:20px 20px 0 0;padding: 20px;width:100%;max-height: 90vh;overflow-y:auto;}
+.qr-container {text-align:center;margin:20px 0;}
+.qr-container canvas {max-width:180px;width:100%;border:1px solid #eee;padding:8px;border-radius:8px;background: white;margin: 0 auto;}
+.addr-display {background: #F4F6FA;padding: 14px;border-radius: 8px;word-break: break-all;font-family: monospace;font-size:0.85rem;margin-bottom:12px;border: 1px solid #E2E8F0;text-align: center;color: #555;}
+.copy-btn {width:100%;background: var(--blue);color:white;border:none;border-radius: 8px;padding:12px;font-weight:600;cursor:pointer;margin-bottom:10px;text-align: center;}
+.vip-plan {background: var(--gray);border-radius: 8px;padding: 12px;margin-bottom: 10px;display: flex;justify-content: space-between;align-items: center;}
+.vip-name {font-weight: 700;color: var(--blue);}
+.section-title {font-weight:700;margin-bottom:12px;font-size:1rem;}
+.trump-retrait-header {background: #F4F6FA;border-radius: 10px;padding: 16px;margin-bottom: 15px;}
+.trump-retrait-title {font-size: 0.9rem;color: #555;margin-bottom: 5px;}
+.trump-retrait-bal {font-size: 1.5rem;font-weight: 800;color: var(--blue);}
+.mode-retrait-container {display: flex;gap: 10px;margin-bottom: 15px;}
+.mode-badge {background: var(--blue);color: white;padding: 10px 16px;border-radius: 6px;font-size: 0.88rem;font-weight: 600;display: flex;align-items: center;gap: 6px;}
+.timer-container {background: rgba(255,255,255,0.15);border: 1px dashed rgba(255,255,255,0.3);padding: 8px;border-radius: 6px;margin-top: 10px;font-size: 0.8rem;display: none;align-items: center;justify-content: center;gap: 6px;}
+.toast {position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:white;padding:12px 24px;border-radius:20px;font-size:0.88rem;z-index:300;opacity:0;visibility:hidden;transition:all 0.3s ease;pointer-events:none;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,0.2);min-width:200px;}
+.toast.show {opacity:1;visibility:visible;}
+.telegram-btn {display:flex;align-items:center;justify-content:center;gap:10px;background:#24A1DE;color:white;border:none;border-radius:8px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 12px rgba(36,161,222,0.2);margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="header" id="header"><div class="header-title" id="headerTitle">Accueil</div></div>
+<div class="toast" id="toast"></div>
+
+<div class="page active" id="page-home">
+<div class="balance-card">
+<div class="bal-label">💰 Solde Disponible</div>
+<div class="bal-amount" id="balDisplay">$0.00</div>
+<div class="timer-container" id="planTimerBox">⏱️ Prochain profit: <span id="countdownTimer" style="font-weight: bold; font-family: monospace;">24:00:00</span></div>
+<div class="bal-actions"><button class="bal-btn" onclick="goTo('recharge')">💳 Recharger</button><button class="bal-btn" onclick="goTo('retrait')">📤 Retirer</button></div>
+</div>
+
+<div class="card">
+<div class="section-title">📊 Plans d'Investissement</div>
+<div class="vip-plan">
+<div>
+<div class="vip-name">⭐ Plan 1 - Débutant</div>
+<div style="font-size:0.85rem;color:#555;">Dépôt: <strong>$1.12</strong> | Profit: <span style="color:var(--success);font-weight:700;">$0.20/24h</span></div>
+</div>
+<button class="bal-btn" style="background:var(--blue);max-width:90px;" onclick="buyPlan(1, 1.12)">Activer</button>
+</div>
+<div class="vip-plan">
+<div>
+<div class="vip-name">⭐⭐ Plan 2 - Intermédiaire</div>
+<div style="font-size:0.85rem;color:#555;">Dépôt: <strong>$10</strong> | Profit: <span style="color:var(--success);font-weight:700;">$0.90/24h</span></div>
+</div>
+<button class="bal-btn" style="background:var(--blue);max-width:90px;" onclick="buyPlan(2, 10)">Activer</button>
+</div>
+<div class="vip-plan">
+<div>
+<div class="vip-name">⭐⭐⭐ Plan 3 - Confirmé</div>
+<div style="font-size:0.85rem;color:#555;">Dépôt: <strong>$20</strong> | Profit: <span style="color:var(--success);font-weight:700;">$2.00/24h</span></div>
+</div>
+<button class="bal-btn" style="background:var(--blue);max-width:90px;" onclick="buyPlan(3, 20)">Activer</button>
+</div>
+<div class="vip-plan">
+<div>
+<div class="vip-name">⭐⭐⭐⭐ Plan 4 - Premium</div>
+<div style="font-size:0.85rem;color:#555;">Dépôt: <strong>$50</strong> | Profit: <span style="color:var(--success);font-weight:700;">$10.00/24h</span></div>
+</div>
+<button class="bal-btn" style="background:var(--blue);max-width:90px;" onclick="buyPlan(4, 50)">Activer</button>
+</div>
+</div>
+</div>
+
+<div class="page" id="page-recharge">
+<div class="card">
+<div class="section-title">💳 Sélectionnez Votre Réseau</div>
+<div id="rechargeList"></div>
+</div>
+</div>
+
+<div class="page" id="page-retrait">
+<div class="card" style="padding: 14px;">
+<div class="trump-retrait-header">
+<div class="trump-retrait-title">Solde total</div>
+<div class="trump-retrait-bal" id="withdrawBalDisplay">0 USDT</div>
+</div>
+<div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; color: #444;">Mode de retrait :</div>
+<div class="mode-retrait-container">
+<div class="mode-badge">
+<img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" style="width:18px; height:18px;" /> BEP20-USDT
+</div>
+</div>
+<div style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 6px;">Quota 1.000 - 9999999.000</div>
+<input type="number" class="input-field" id="withdrawAmt" placeholder="Montant ($)" min="1" />
+<div style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 6px;">Coordonnées (Adresse de retrait)</div>
+<input type="text" class="input-field" id="withdrawAddr" placeholder="Adresse BEP20 (0x...)" />
+<div style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 6px;">Mot de passe</div>
+<input type="password" class="input-field" id="withdrawPass" placeholder="Veuillez entrer le mot de passe de retrait" />
+<button class="submit-btn" style="margin-top:10px;" onclick="submitWithdraw()">Retirer</button>
+</div>
+<div class="card">
+<div class="section-title">🕐 Historique des Retraits</div>
+<div id="withdrawHistory"><div style="color:#999;text-align:center;padding:12px 0;font-size:0.9rem;">Aucun retrait pour le moment</div></div>
+</div>
+</div>
+
+<div class="page" id="page-amis">
+<div class="card">
+<div class="section-title">🔗 Parrainage</div>
+<div style="background:var(--gray);padding:12px;border-radius:8px;margin-bottom:10px;">
+<div id="refLink" style="font-size:0.8rem;word-break:break-all;font-family:monospace;margin-bottom:8px;background:white;padding:8px;border-radius:4px;">Chargement...</div>
+<button class="copy-btn" onclick="copyRef()">📋 Copier le Lien</button>
+</div>
+</div>
+<div class="card">
+<div class="section-title">💬 Notre Communauté</div>
+<a href="https://t.me/Qeykocapitalbot" target="_blank" class="telegram-btn">
+<img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" style="width:22px;height:22px;"/> Rejoindre le Groupe Telegram
+</a>
+</div>
+</div>
+
+<div class="page" id="page-profile">
+<div class="card">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+<div style="width:48px;height:48px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;" id="avatarInitial">?</div>
+<div><div style="font-weight:600;" id="profileName">Chargement...</div><div style="font-size:0.8rem;color:#666;" id="profileId">ID: —</div></div>
+</div>
+</div>
+<div class="card">
+<div class="section-title">🔐 Configurer Mot de passe de retrait</div>
+<input type="password" class="input-field" id="newPass" placeholder="Nouveau mot de passe" />
+<input type="password" class="input-field" id="confirmPass" placeholder="Confirmer le mot de passe" />
+<button class="submit-btn" onclick="savePassword()">💾 Enregistrer</button>
+</div>
+</div>
+
+<div class="bottom-nav">
+<button class="nav-btn active" onclick="goTo('home')" id="nav-home"><div style="font-size:1.3rem;">🏠</div>Accueil</button>
+<button class="nav-btn" onclick="goTo('recharge')" id="nav-recharge"><div style="font-size:1.3rem;">💳</div>Recharge</button>
+<button class="nav-btn" onclick="goTo('retrait')" id="nav-retrait"><div style="font-size:1.3rem;">📤</div>Retrait</button>
+<button class="nav-btn" onclick="goTo('amis')" id="nav-amis"><div style="font-size:1.3rem;">👥</div>Amis</button>
+<button class="nav-btn" onclick="goTo('profile')" id="nav-profile"><div style="font-size:1.3rem;">👤</div>Profil</button>
+</div>
+
+<div class="modal" id="cryptoModal" onclick="closeModalOutside(event)">
+<div class="modal-content" onclick="event.stopPropagation();">
+<div style="text-align:center;font-weight:700;font-size:1.1rem;margin-bottom:15px; display:flex; align-items:center; justify-content:center; gap:8px;">
+<img src="" id="cryptoModalIconImg" style="width:24px; height:24px; object-fit:contain;" />
+<span id="cryptoModalTitle">BEP20-USDT</span>
+</div>
+<div class="qr-container" id="qrContainer"></div>
+<div class="addr-display"><span id="cryptoAddr" style="word-break:break-all;">0x...</span></div>
+<button class="copy-btn" onclick="copyCrypto()">📋 Copier l'Adresse</button>
+<button class="submit-btn" onclick="triggerRechargeDone()" style="background:var(--success); border:none;">Recharge terminée</button>
+</div>
+</div>
+
+<script>
+const BOT_USERNAME = "Qeyko_Capital_Bot";
+const CRYPTOS = {
+  'BEP20-USDT': {addr: '0x7fD50dAAfeA0a8Df3E4860ECC81939fFBaa11396', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032'},
+  'TRC20-USDT': {addr: 'TYDHcrwhGkRH68u2fWat72iJoNFqhoadHy', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032'},
+  'TRX': {addr: 'TYDHcrwhGkRH68u2fWat72iJoNFqhoadHy', icon: 'https://cryptologos.cc/logos/tron-trx-logo.png?v=032'},
+  'POLYGON-USDT': {addr: '0x7fD50dAAfeA0a8Df3E4860ECC81939fFBaa11396', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032'}
+};
+
+const tg = window.Telegram?.WebApp;
+let tgUser = null, userData = {}, selectedCrypto = null, timerInterval = null, isFirebaseLoaded = false;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if(tg) { tg.ready(); tg.expand(); tgUser = tg.initDataUnsafe?.user; }
+  buildRechargeList();
+  await loadUser();
+  renderWithdrawHistory();
+  setRefLink();
+  startGlobalTimerControl();
+});
+
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  const titles = {home:'Accueil',recharge:'💳 Recharger',retrait:'Retirer',amis:'👥 Amis',profile:'👤 Profil'};
+  document.getElementById('headerTitle').textContent = titles[page] || 'Accueil';
+}
+
+function buildRechargeList() {
+  const html = Object.keys(CRYPTOS).map(name => `
+    <div class="crypto-item" onclick="openCrypto('${name}')">
+      <div class="crypto-info">
+        <img src="${CRYPTOS[name].icon}" class="crypto-icon" />
+        <div class="crypto-name">${name}</div>
+      </div>
+      <div style="color:#ccc; font-weight:bold;">❯</div>
+    </div>
+  `).join('');
+  document.getElementById('rechargeList').innerHTML = html;
+}
+
+function openCrypto(name) {
+  selectedCrypto = {name, addr: CRYPTOS[name].addr};
+  document.getElementById('cryptoModalTitle').textContent = name;
+  const iconImg = document.getElementById('cryptoModalIconImg');
+  if(iconImg && CRYPTOS[name].icon) iconImg.src = CRYPTOS[name].icon;
+  document.getElementById('cryptoAddr').textContent = selectedCrypto.addr;
+  const qrBox = document.getElementById('qrContainer');
+  if(qrBox) {
+    qrBox.innerHTML = '';
+    try {
+      if(typeof QRCode !== 'undefined') {
+        new QRCode(qrBox, selectedCrypto.addr);
+      } else {
+        qrBox.innerHTML = '(QR Code indisponible - Copiez l\'adresse)';
+      }
+    } catch(e) { console.log(e); }
+  }
+  document.getElementById('cryptoModal').classList.add('open');
+}
+
+function copyCrypto() {
+  navigator.clipboard?.writeText(selectedCrypto.addr).then(() => showToast('📋 Adresse copiée!'));
+}
+
+function triggerRechargeDone() {
+  showToast('✅ Notification envoyée. Vérification en cours...');
+  document.getElementById('cryptoModal').classList.remove('open');
+  goTo('home');
+}
+
+function closeModalOutside(e) {
+  if(e.target.id === 'cryptoModal') document.getElementById('cryptoModal').classList.remove('open');
+}
+
+async function buyPlan(planId, price) {
+  if(!isFirebaseLoaded) {
+    showToast("⏳ Chargement des données... Veuillez patienter.");
+    return;
+  }
+  if((userData.balance || 0) < price) {
+    showToast("❌ Solde insuffisant!");
+    return;
+  }
+  userData.balance -= price;
+  userData.lastPlanActiveTime = new Date().getTime();
+  await saveUser();
+  updateUI();
+  startGlobalTimerControl();
+  showToast("✅ Plan activé avec succès!");
+}
+
+function startGlobalTimerControl() {
+  if(timerInterval) clearInterval(timerInterval);
+  const timerBox = document.getElementById('planTimerBox');
+  const timerDisplay = document.getElementById('countdownTimer');
+  timerInterval = setInterval(() => {
+    if(!userData.lastPlanActiveTime) {
+      if(timerBox) timerBox.style.display = 'none';
+      return;
+    }
+    const now = new Date().getTime();
+    const target = userData.lastPlanActiveTime + (24 * 60 * 60 * 1000);
+    const diff = target - now;
+    if(diff <= 0) {
+      if(timerBox) timerBox.style.display = 'none';
+      clearInterval(timerInterval);
+      userData.lastPlanActiveTime = null;
+      saveUser();
+      return;
+    }
+    if(timerBox) timerBox.style.display = 'flex';
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    if(timerDisplay) timerDisplay.textContent = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+async function loadUser() {
+  if(!tgUser || !window._db) return;
+  const db = window._db;
+  const { doc, getDoc, setDoc } = window._fbFns;
+  const uid = String(tgUser.id);
+  const ref = doc(db, "users", uid);
+  try {
+    const snap = await getDoc(ref);
+    if(snap.exists()) {
+      userData = snap.data();
+    } else {
+      userData = {uid,name:tgUser.first_name+(tgUser.last_name?' '+tgUser.last_name:''),username:tgUser.username||'',balance:0,totalDeposited:0,totalWithdrawn:0,refs:[],password:'',vipPlans:[],joinedAt:new Date().toISOString(),deposits:[],withdrawals:[],lastPlanActiveTime:null};
+      await setDoc(ref, userData);
+    }
+    isFirebaseLoaded = true;
+  } catch(e) { console.log(e); }
+  updateUI();
+}
+
+async function saveUser() {
+  if(!tgUser || !window._db) return;
+  const db = window._db;
+  const { doc, setDoc } = window._fbFns;
+  await setDoc(doc(db, "users", String(tgUser.id)), userData);
+}
+
+function updateUI() {
+  const bal = (userData.balance || 0).toFixed(2);
+  const bd = document.getElementById('balDisplay');
+  const wbd = document.getElementById('withdrawBalDisplay');
+  if(bd) bd.textContent = '$' + bal;
+  if(wbd) wbd.textContent = bal + ' USDT';
+  if(document.getElementById('profileName')) document.getElementById('profileName').textContent = userData.name || 'Utilisateur';
+  if(document.getElementById('profileId')) document.getElementById('profileId').textContent = 'ID: ' + (userData.uid || '—');
+  if(document.getElementById('avatarInitial')) document.getElementById('avatarInitial').textContent = (userData.name || 'U')[0].toUpperCase();
+}
+
+async function submitWithdraw() {
+  const addr = document.getElementById('withdrawAddr').value.trim();
+  const amt = parseFloat(document.getElementById('withdrawAmt').value);
+  const pass = document.getElementById('withdrawPass').value;
+  if(!addr || !addr.startsWith('0x')) { showToast('❌
