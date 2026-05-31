@@ -285,7 +285,15 @@ function openCrypto(name) {
 
   </div>
   `;
-
+function openCrypto(name) {
+  selectedCrypto = {name, addr: CRYPTOS[name].addr};
+  document.getElementById('cryptoModalTitle').textContent = name;
+  document.getElementById('cryptoModalIconImg').src = CRYPTOS[name].icon;
+  document.getElementById('cryptoAddr').textContent = selectedCrypto.addr;
+  document.getElementById('qrContainer').innerHTML = '';
+  new QRCode(document.getElementById('qrContainer'), selectedCrypto.addr);
+  document.getElementById('cryptoModal').classList.add('open');
+  
   function openCrypto(name) {
 
   selectedCrypto = {
