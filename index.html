@@ -877,40 +877,66 @@
         const f = document.getElementById('passwordFormBlock');
         f.classList.toggle('active');
     }
-
-    async function saveNewPasswordInline() {
-        const newP = document.getElementById('newPassInput').value;
-        const confP = document.getElementById('confirmPassInput').value;
-
-        if(!newP || !confP) {
-            showToast("❌ Veuillez remplir les champs !");
-            return;
-        }
-// Men bout kòd JavaScript ki ranplase fonksyon sa a nèt selon Opsyon 1
-// Li retire lojik modpas/koneksyon an epi l itilize API Telegram lan dirèkteman
+// ==================== LOJIK TELEGRAM AUTOMATIQUE ====================
 
 async function initializeTelegramUser() {
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Pou aplikasyon an louvri nèt
+    tg.expand(); 
 
-    // Tcheke si done itilizatè Telegram lan disponib
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
         
-        // Otomatikman konsidere l kòm konekte ak kont Telegram li
         userData.isConnected = true;
         userData.telegramId = user.id;
         userData.username = user.username || 'Non défini';
         userData.fullName = `${user.first_name} ${user.last_name || ''}`.trim();
 
-        // Mete enfòmasyon yo nan HTML la pou paj Profil la
+        if(document.getElementById('user-name')) document.getElementById('user-name').innerText = userData.fullName;
+        if(document.getElementById('user-username')) document.getElementById('user-username').innerText = user.username ? `@${user.username}` : 'Non défini';
+        if(document.getElementById('user-id')) document.getElementById('user-id').innerText = user.id;
+
+        if (typeof showToast === 'function') showToast("🟢 Connexion automatique réussie !");
+    } else {
+        userData.isConnected = true;
+        userData.telegramId = "123456789";
+        userData.username = "test_user";
+        userData.fullName = "Utilisateur Test";
+        
+        if (typeof showToast === 'function') showToast("🟡 Mode Test (Hors Telegram)");
+    }
+
+    if (typeof saveData === 'function') await saveData();
+    if (typeof updateUI === 'function') updateUI();
+}
+// Liy sa a enpòtan anpil pou l ka deklanche lojik la
+initializeTelegramUser();
+
+    if (typeof saveData === 'function') await saveData();
+    if (typeof updateUI === 'function') updateUI();
+}
+
+// Liy sa a ap deklanche lojik la depi paj la louvri
+initializeTelegramUser();
+
+
+async function initializeTelegramUser() {
+    const tg = window.Telegram.WebApp;
+    tg.expand(); 
+
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const user = tg.initDataUnsafe.user;
+        
+        userData.isConnected = true;
+        userData.telegramId = user.id;
+        userData.username = user.username || 'Non défini';
+        userData.fullName = `${user.first_name} ${user.last_name || ''}`.trim();
+
         if(document.getElementById('user-name')) document.getElementById('user-name').innerText = userData.fullName;
         if(document.getElementById('user-username')) document.getElementById('user-username').innerText = user.username ? `@${user.username}` : 'Non défini';
         if(document.getElementById('user-id')) document.getElementById('user-id').innerText = user.id;
 
         showToast("🟢 Connexion automatique réussie !");
     } else {
-        // Si w ap teste l deyò Telegram (nan yon navigatè nòmal)
         userData.isConnected = true;
         userData.telegramId = "123456789";
         userData.username = "test_user";
@@ -919,14 +945,31 @@ async function initializeTelegramUser() {
         showToast("🟡 Mode Test (Hors Telegram)");
     }
 
-    // Sove done yo epi mete koòdone a (UI) a jou
-    await saveData();
-    updateUI();
+    if (typeof saveData === 'function') await saveData();
+    if (typeof updateUI === 'function') updateUI();
 }
 
-// Ou ka jis rele fonksyon sa a depi aplikasyon an louvri nan plas ansyen sistèm lan:
+// Liy sa a ap deklanche lojik la depi paj la louvri
 initializeTelegramUser();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     function simulateLiveCryptoPrices() {
         setInterval(() => {
             const randBtc = (67000 + Math.random() * 800).toFixed(2);
