@@ -377,32 +377,31 @@
         </div>
 
         <div id="sec-profil" class="page-section">
+        <div id="sec-profil" class="page-section">
             <div class="card">
                 <h2>👤 Mon Profil</h2>
                 <div style="margin-top: 15px; font-size: 0.9rem; line-height: 2;">
+                    <div>👤 <strong>Nom:</strong> <span id="user-name">Chargement...</span></div>
+                    <div>🆔 <strong>Username:</strong> <span id="user-username">@...</span></div>
+                    <div>🔢 <strong>ID Telegram:</strong> <span id="user-id">00000000</span></div>
+                    <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
                     <div>📥 Total Déposé : <strong style="color:var(--success);" id="profDepot">$0.00</strong></div>
                     <div>📤 Total Retiré : <strong style="color:red;" id="profRetrait">$0.00</strong></div>
                 </div>
-                <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
-                
-                <button class="btn-action" id="btnAuthToggle" style="width:100%; background:#888; margin-bottom:10px;" onclick="toggleConnectionState()">Connexion</button>
-                <button class="btn-action" style="width:100%; background:#444;" onclick="togglePasswordForm()">Change modpas</button>
-            
-            <div class="card" style="border: 2px dashed var(--blue);">
+            </div> <div class="card" style="border: 2px dashed var(--blue); margin-top: 20px;">
                 <h3>🎯 Tâches Quotidiennes</h3>
                 <p style="font-size:0.85rem; margin-bottom:12px;">Rejoignez nos canaux officiels pour débloquer votre bonus de <strong>$0.20</strong>.</p>
                 
-                <button class="btn-action" style="width:100%; background: #0088cc; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="openTelegramChannel()">
+                <button class="btn-action" style="width:100%; background: #0088cc; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="if(typeof openTelegramChannel === 'function') openTelegramChannel()">
                     <span>🔹</span> Visiter le Canal Telegram (+ $0.20)
                 </button>
                 
-                <button class="btn-action" style="width:100%; background: #25D366; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="openWhatsAppGroup()">
+                <button class="btn-action" style="width:100%; background: #25D366; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="if(typeof openWhatsAppGroup === 'function') openWhatsAppGroup()">
                     <span>🟢</span> Rejoindre WhatsApp (+ $0.20)
                 </button>
             </div>
 
-            <!-- MODIFICATION 3 & 4: IMPROVED SERVICE CLIENT WITH TELEGRAM -->
-            <div class="customer-service-box" onclick="openTelegramBot()">
+            <div class="customer-service-box" style="margin-top: 20px;" onclick="if(typeof openTelegramBot === 'function') openTelegramBot()">
                 <div class="cs-left">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" class="tg-logo" alt="Telegram">
                     <div>
@@ -416,8 +415,8 @@
 
     </div>
 
-    <div class="msg-modal" id="msgModal" onclick="if(event.target===this) toggleMsgBox()" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:400; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:60px;">
-        <div class="msg-box" style="background:white; width:95%; max-width:500px; border-radius:12px; padding:20px; max-height:50vh; overflow-y:auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: slideDownModal 0.3s ease;">
+    <div class="msg-modal" id="msgModal" onclick="if(event.target===this && typeof toggleMsgBox === 'function') toggleMsgBox()" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:400; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:60px;">
+        <div class="msg-box" style="background:white; width:95%; max-width:500px; border-radius:12px; padding:20px; max-height:50vh; overflow-y:auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: slideDownMod
             <h3 style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; font-size:1.1rem; font-weight:700; color:#0066FF;">
                 📨 Notifications & Messages
                 <span style="cursor:pointer; background:rgba(0,0,0,0.1); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:700;" onclick="toggleMsgBox()">✕</span>
