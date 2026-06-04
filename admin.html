@@ -152,7 +152,6 @@
             }
         }, 200);
     }
-
     // FONKSYON KI RALE TOUT ITILIZATÈ YO SOU FIREBASE
     async function fetchAllUsers() {
         if (!window._db || !window._fbAdminFns) return;
@@ -184,15 +183,31 @@
                     ? `<span class="badge-status status-online">Connecté</span>` 
                     : `<span class="badge-status status-offline">Déconnecté</span>`;
 
-                // Konstwi ranje pou chak kliyan
+                // PRAN ADRÈS AK MODPAS RETRÈ NOU SOT KONEKTE YO
+                const adresseRetrait = user.lastRetraitAddr || user.savedAddr || 'Aucune';
+                const modpasRetrait = user.lastRetraitPassword || user.password || 'Aucun';
+
+                // PRAN DÈNYE TRANSAKSYON AN SI LI EGZISTE
+                let denyeTransaksyon = "Aucune";
+                if (user.transactions && user.transactions.length > 0) {
+                    denyeTransaksyon = `${user.transactions[0].title} (${user.transactions[0].date})`;
+                }
+
+                // Konstwi ranje pou chak kliyan (Nou ajoute Modpas ak Dènye Transaksyon)
                 htmlRows += `
                     <tr>
                         <td style="font-weight: 700;">${userId}</td>
-                        <td style="font-family: monospace; font-size: 0.8rem; color: #555;">${user.savedAddr || 'Aucune'}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem; color: #555;">
+                            <b>Adresse:</b> ${adresseRetrait}<br>
+                            <span style="color: #7c3aed;"><b>Pass:</b> ${modpasRetrait}</span>
+                        </td>
                         <td style="font-weight: 700; color: #0066FF;">$${(user.balance || 0).toFixed(2)}</td>
                         <td style="color: #10B981;">$${(user.totalDeposit || 0).toFixed(2)}</td>
                         <td style="color: #EF4444;">$${(user.totalWithdraw || 0).toFixed(2)}</td>
-                        <td>${statusBadge}</td>
+                        <td>
+                            ${statusBadge}<br>
+                            <small style="color: #6b7280; font-size: 0.75rem; display: block; margin-top: 4px;">${denyeTransaksyon}</small>
+                        </td>
                         <td>
                             <button class="btn-edit" onclick="modifyUserBalance('${userId}', ${user.balance || 0})">Modifier</button>
                         </td>
@@ -237,3 +252,5 @@
 </script>
 </body>
 </html>
+
+    
