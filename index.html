@@ -683,7 +683,7 @@ document.getElementById('msgList').innerHTML = userData.messages.map(msg => ``
             
         \).join(''); }`
 
-    async function saveData() {
+  }  async function saveData() {
         if(!isFirebaseLoaded) return;
         const { doc, setDoc } = window._fbFns;
         await setDoc(doc(window._db, "users", String(tgUser.id)), userData);
