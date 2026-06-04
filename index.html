@@ -674,14 +674,14 @@ function updateUI() {
     }
 
     if(userData.messages && userData.messages.length > 0 && document.getElementById('msgList')) {
-        document.getElementById('msgList').innerHTML = userData.messages.map(msg => `
+document.getElementById('msgList').innerHTML = userData.messages.map(msg => ``
+        
             <div class="msg-item">
-                <div style="font-weight:600;">${msg.title || 'Notification'}</div>
-                <div class="msg-time">${msg.date || ''}</div>
-            </div>
-        `).join('');
-    }
-}
+<div style="font-weight:600;">\${msg.title || 'Notification'}</div>
+    
+     <div class="msg-time">\${msg.date || ''}</div>          
+            
+        \).join(''); }`
 
     async function saveData() {
         if(!isFirebaseLoaded) return;
