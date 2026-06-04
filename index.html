@@ -651,14 +651,14 @@
                 } catch(e) { console.log(e); }
             }
         }, 200);
-    function updateUI() {
+
+function updateUI() {
     const currentBal = (userData.balance || 0);
     if(document.getElementById('mainBal')) document.getElementById('mainBal').textContent = currentBal.toFixed(2);
     if(document.getElementById('retraitTotalDist')) document.getElementById('retraitTotalDist').textContent = currentBal.toFixed(2);
     if(document.getElementById('profDepot')) document.getElementById('profDepot').textContent = "$" + (userData.totalDeposit || 0).toFixed(2);
     if(document.getElementById('profRetrait')) document.getElementById('profRetrait').textContent = "$" + (userData.totalWithdraw || 0).toFixed(2);
 
-    // Remonte adrès ak modpas retrè otomatikman si chan yo la
     const boxAddr = document.getElementById('retraitAddr');
     const boxPass = document.getElementById('retraitPassword');
 
@@ -673,15 +673,14 @@
         boxAddr.value = userData.savedAddr;
     }
 
-    // Afiche mesaj yo si yo la
     if(userData.messages && userData.messages.length > 0 && document.getElementById('msgList')) {
         document.getElementById('msgList').innerHTML = userData.messages.map(msg => `
             <div class="msg-item">
                 <div style="font-weight:600;">${msg.title}</div>
                 <div class="msg-time">${msg.date}</div>
             </div>
-        `).join('');
-    }
+        `).join('');        
+
     async function saveData() {
         if(!isFirebaseLoaded) return;
         const { doc, setDoc } = window._fbFns;
