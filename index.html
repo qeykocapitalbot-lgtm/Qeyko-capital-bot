@@ -685,14 +685,15 @@
     }
 
 function checkLaunchDate() {
-    const targetDate = new Date("2026-06-05T00:00:00");
+    const targetDate = new Date("2026-06-05T09:20:00");
     const today = new Date();
     return today >= targetDate;
 }
 
   async function startMining(vipLevel, price) {
         if(!checkLaunchDate()) {
-            showToast("❌ Accès refusé. Le lancement officiel est le 05Juin 2026 !");
+            showToast("❌ showToast("❌ Le lancement officiel est le 05 Juin 2026 à 09h20 !");
+
             return;
         }
         if((userData.balance || 0) < price) {
