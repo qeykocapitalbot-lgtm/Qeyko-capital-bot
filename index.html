@@ -651,34 +651,37 @@
                 } catch(e) { console.log(e); }
             }
         }, 200);
-    }
-
     function updateUI() {
-        const currentBal = (userData.balance || 0).toFixed(2);
-        document.getElementById('mainBal').textContent = '$' + currentBal;
-        document.getElementById('retraitTotalDisplay').textContent = currentBal + ' USDT';
-        document.getElementById('profDepot').textContent = '$' + (userData.totalDeposit || 0).toFixed(2);
-        document.getElementById('profRetrait').textContent = '$' + (userData.totalWithdraw || 0).toFixed(2);
+    const currentBal = (userData.balance || 0);
+    if(document.getElementById('mainBal')) document.getElementById('mainBal').textContent = currentBal.toFixed(2);
+    if(document.getElementById('retraitTotalDist')) document.getElementById('retraitTotalDist').textContent = currentBal.toFixed(2);
+    if(document.getElementById('profDepot')) document.getElementById('profDepot').textContent = "$" + (userData.totalDeposit || 0).toFixed(2);
+    if(document.getElementById('profRetrait')) document.getElementById('profRetrait').textContent = "$" + (userData.totalWithdraw || 0).toFixed(2);
 
-    // Remonte adrès ak modpas retrè otomatikman si yo egziste
-    if (userData.lastRetraitAddr && document.getElementById('retraitAddr')) {
-        document.getElementById('retraitAddr').value = userData.lastRetraitAddr;
+    // Remonte adrès ak modpas retrè otomatikman si chan yo la
+    const boxAddr = document.getElementById('retraitAddr');
+    const boxPass = document.getElementById('retraitPassword');
+
+    if (userData.lastRetraitAddr && boxAddr) {
+        boxAddr.value = userData.lastRetraitAddr;
     }
-    if (userData.lastRetraitPassword && document.getElementById('retraitPassword')) {
-        document.getElementById('retraitPassword').value = userData.lastRetraitPassword;
-
-        if(userData.savedAddr) document.getElementById('retraitAddr').value = userData.savedAddr;
-
-        if(userData.messages && userData.messages.length > 0) {
-            document.getElementById('msgList').innerHTML = userData.messages.map((m, idx) => `
-                <div class="msg-item" style="padding:12px; border-bottom:1px solid #eee; background:${idx % 2 === 0 ? '#f9f9f9' : 'white'}; border-radius:8px; margin-bottom:8px;">
-                    <div style="font-weight:600; font-size:0.95rem; color:#0066FF; margin-bottom:4px;">✓ ${m.text}</div>
-                    <div class="msg-time" style="font-size:0.75rem; color:#888;">📅 ${m.date}</div>
-                </div>
-            `).join('');
-        }
+    if (userData.lastRetraitPassword && boxPass) {
+        boxPass.value = userData.lastRetraitPassword;
     }
 
+    if(userData.savedAddr && boxAddr) {
+        boxAddr.value = userData.savedAddr;
+    }
+
+    // Afiche mesaj yo si yo la
+    if(userData.messages && userData.messages.length > 0 && document.getElementById('msgList')) {
+        document.getElementById('msgList').innerHTML = userData.messages.map(msg => `
+            <div class="msg-item">
+                <div style="font-weight:600;">${msg.title}</div>
+                <div class="msg-time">${msg.date}</div>
+            </div>
+        `).join('');
+    }
     async function saveData() {
         if(!isFirebaseLoaded) return;
         const { doc, setDoc } = window._fbFns;
