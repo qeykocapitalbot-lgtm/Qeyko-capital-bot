@@ -773,7 +773,14 @@ async function processRetrait() {
         showToast("❌ Veuillez remplir tous les champs !");
         return;
     }
-
+    // Istorik otomatik
+    if (!userData.transactions) userData.transactions = [];
+    userData.transactions.unshift({
+        title: "Retirer avec succès",
+        date: new Date().toLocaleString('fr-FR')
+    });
+    if (typeof saveData === 'function') saveData();
+    
     // GESTION DYNAMIQUE DU MOT DE PASSE
     if (!userData.password || userData.password === "") {
         // Premier retrait : On enregistre le mot de passe créé
