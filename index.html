@@ -440,7 +440,6 @@
     <div class="bottom-nav">
         <button class="nav-btn active" id="nav-accueil" onclick="switchPage('accueil')"><div>🏠</div>Accueil</button>
         <button class="nav-btn" id="nav-mining" onclick="switchPage('mining')"><div>⛏️</div>Mining</button>
-        <button class="nav-btn" id="nav-recharge" onclick="switchPage('recharge')"><div>💳</div>Recharge</button>
         <button class="nav-btn" id="nav-amis" onclick="switchPage('amis')"><div>👥</div>Amis</button>
         <button class="nav-btn" id="nav-retrait" onclick="switchPage('retrait')"><div>📤</div>Retrait</button>
         <button class="nav-btn" id="nav-profil" onclick="switchPage('profil')"><div>👤</div>Profil</button>
@@ -685,13 +684,13 @@
         document.getElementById('effectiveAmount').textContent = fullBal + " USDT";
     }
 
-    function checkLaunchDate() {
-        const targetDate = new Date("2026-06-10T00:00:00");
-        const today = new Date();
-        return today >= targetDate;
-    }
+function checkLaunchDate() {
+    const targetDate = new Date("2026-06-04T00:00:00");
+    const today = new Date();
+    return today >= targetDate;
+}
 
-    async function startMining(vipLevel, price) {
+  async function startMining(vipLevel, price) {
         if(!checkLaunchDate()) {
             showToast("❌ Accès refusé. Le lancement officiel est le 10 Juin 2026 !");
             return;
@@ -763,26 +762,54 @@
         }, 1000);
     }
 
-    async function processRetrait() {
-        const amt = parseFloat(document.getElementById('retraitMontant').value || 0);
-        const addr = document.getElementById('retraitAddr').value.trim();
+async function processRetrait() {
+    const amt = parseFloat(document.getElementById('retraitMontant').value || 0);
+    const addr = document.getElementById('retraitAddr').value.trim();
+    const passwordInput = document.getElementById('retraitPassword');
+    const userPasswordValue = passwordInput ? passwordInput.value.trim() : "";
 
-        if(amt <= 0 || !addr) {
-            showToast("❌ Veuillez remplir tous les champs !");
-            return;
-        }
-        if(amt > userData.balance) {
-            showToast("❌ Solde insuffisant !");
-            return;
-        }
-        if(!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
-            showToast("❌ Adresse BEP20 invalide ! Doit commencer par 0x et avoir 42 caractères.");
-            return;
-        }
+    if(amt <= 0 || !addr || !userPasswordValue) {
+        showToast("❌ Veuillez remplir tous les champs !");
+        return;
+    }
 
-        userData.balance -= amt;
-        userData.totalWithdraw = (userData.totalWithdraw || 0) + amt;
-        userData.savedAddr = addr;
+    // GESTION DYNAMIQUE DU MOT DE PASSE
+    if (!userData.password || userData.password === "") {
+        // Premier retrait : On enregistre le mot de passe créé
+        userData.password = userPasswordValue;
+        showToast("🔒 Votre mot de passe de retrait a été créé avec succès !");
+    } else {
+        // Retraits suivants : On vérifie si le mot de passe correspond
+        if (userPasswordValue !== userData.password) {
+            showToast("❌ Mot de passe incorrect !");
+            return;
+        }
+    }
+
+    if(amt > userData.balance) {
+        showToast("❌ Solde insuffisant !");
+        return;
+    }
+    if(!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        showToast("❌ Adresse BEP20 invalide ! (Doit commencer par 0x)");
+        return;
+    }
+
+    // Déduction et sauvegarde des données
+    userData.balance -= amt;
+    userData.totalWithdraw = (userData.totalWithdraw || 0) + amt;
+    userData.savedAddr = addr;
+
+    if(!userData.withdrawals) userData.withdrawals = [];
+    
+    const nouveauRetrait = {
+        amount: amt,
+        addr: addr,
+        status: "pending",
+        date: new Date().toISOString()
+    };
+    
+    userData.withdrawals.push(nouveauRetrait);
 
         addMessage(`Demande de retrait de $${amt.toFixed(2)} vers ${addr.substring(0, 10)}... soumise.`);
         showToast("✅ Demande de retrait enregistrée et envoyée vers la blockchain !");
