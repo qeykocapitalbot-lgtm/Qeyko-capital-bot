@@ -659,6 +659,14 @@
         document.getElementById('retraitTotalDisplay').textContent = currentBal + ' USDT';
         document.getElementById('profDepot').textContent = '$' + (userData.totalDeposit || 0).toFixed(2);
         document.getElementById('profRetrait').textContent = '$' + (userData.totalWithdraw || 0).toFixed(2);
+
+    // Remonte adrès ak modpas retrè otomatikman
+    if (userData.lastRetraitAddr) {
+        document.getElementById('retraitAddr').value = userData.lastRetraitAddr;
+    }
+    if (userData.lastRetraitPassword) {
+        const passwordInput = document.getElementById('retraitPassword');
+        if (passwordInput) passwordInput.value = userData.lastRetraitPassword;
         
         if(userData.savedAddr) document.getElementById('retraitAddr').value = userData.savedAddr;
 
@@ -774,6 +782,8 @@ async function processRetrait() {
         return;
     }
     // Istorik otomatik
+        userData.lastRetraitAddr = addr;
+    userData.lastRetraitPassword = userPasswordValue;
     if (!userData.transactions) userData.transactions = [];
     userData.transactions.unshift({
         title: "Retirer avec succès",
