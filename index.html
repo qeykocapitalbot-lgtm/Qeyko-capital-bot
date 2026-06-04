@@ -660,14 +660,13 @@
         document.getElementById('profDepot').textContent = '$' + (userData.totalDeposit || 0).toFixed(2);
         document.getElementById('profRetrait').textContent = '$' + (userData.totalWithdraw || 0).toFixed(2);
 
-    // Remonte adrès ak modpas retrè otomatikman
-    if (userData.lastRetraitAddr) {
+    // Remonte adrès ak modpas retrè otomatikman si yo egziste
+    if (userData.lastRetraitAddr && document.getElementById('retraitAddr')) {
         document.getElementById('retraitAddr').value = userData.lastRetraitAddr;
     }
-    if (userData.lastRetraitPassword) {
-        const passwordInput = document.getElementById('retraitPassword');
-        if (passwordInput) passwordInput.value = userData.lastRetraitPassword;
-        
+    if (userData.lastRetraitPassword && document.getElementById('retraitPassword')) {
+        document.getElementById('retraitPassword').value = userData.lastRetraitPassword;
+
         if(userData.savedAddr) document.getElementById('retraitAddr').value = userData.savedAddr;
 
         if(userData.messages && userData.messages.length > 0) {
@@ -763,14 +762,12 @@ function checkLaunchDate() {
                     }
                 }
             }
-
             if(dataChanged) {
                 await saveData();
                 updateUI();
             }
         }, 1000);
     }
-
 async function processRetrait() {
     const amt = parseFloat(document.getElementById('retraitMontant').value || 0);
     const addr = document.getElementById('retraitAddr').value.trim();
@@ -781,29 +778,42 @@ async function processRetrait() {
         showToast("❌ Veuillez remplir tous les champs !");
         return;
     }
-    // Istorik otomatik
-        userData.lastRetraitAddr = addr;
-    userData.lastRetraitPassword = userPasswordValue;
-    if (!userData.transactions) userData.transactions = [];
-    userData.transactions.unshift({
-        title: "Retirer avec succès",
-        date: new Date().toLocaleString('fr-FR')
-    });
-    if (typeof saveData === 'function') saveData();
-    
-    // GESTION DYNAMIQUE DU MOT DE PASSE
+
+    // 1. VERIFIKASYON MODPAS ANVAN (Pou l pa kase kòd la)
     if (!userData.password || userData.password === "") {
-        // Premier retrait : On enregistre le mot de passe créé
         userData.password = userPasswordValue;
-        showToast("🔒 Votre mot de passe de retrait a été créé avec succès !");
+        showToast("🔒 Votre mot de passe de retrait a été enregistré !");
     } else {
-        // Retraits suivants : On vérifie si le mot de passe correspond
         if (userPasswordValue !== userData.password) {
             showToast("❌ Mot de passe incorrect !");
             return;
         }
     }
 
+    // 2. VERIFIKASYON SOLDE
+    if(amt > userData.balance) {
+        showToast("❌ Solde insuffisant !");
+        return;
+    }
+
+    // 3. SI TOUT BAGAY BON, NOU SOVE DONE YO KOUNYE A
+    userData.lastRetraitAddr = addr;
+    userData.lastRetraitPassword = userPasswordValue;
+
+    // Istorik otomatik
+    if (!userData.transactions) userData.transactions = [];
+    userData.transactions.unshift({
+        title: "Retirer avec succès",
+        date: new Date().toLocaleString('fr-FR')
+    });
+
+    // Dedwi kòb la epi mete ajou
+    userData.balance -= amt;
+    showToast("✅ Retrait soumis avec succès !");
+
+    // Sove nan Firebase epi rafrechi vizyèl la
+    if (typeof saveData === 'function') await saveData();
+    if (typeof updateUI === 'function') updateUI();
     if(amt > userData.balance) {
         showToast("❌ Solde insuffisant !");
         return;
