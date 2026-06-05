@@ -763,7 +763,7 @@ const TRONGRID_API_KEY = "7cc785b3-6906-43fd-bcfb-70d14fd68fce";
         userData.savedAddr = addr;
 
         addMessage(`Retrait $${amt.toFixed(2)} soumis vers ${addr.substring(0, 10)}...`);
-        showToast("✅ Retrait enregistré!");
+        showToast("✅ Retraitenregistré!");
         await saveData();
         updateUI();
     }
@@ -775,15 +775,18 @@ const TRONGRID_API_KEY = "7cc785b3-6906-43fd-bcfb-70d14fd68fce";
         addMessage("Bonus tâche $0.20 créditée.");
         await saveData();
         updateUI();
-    }
-
-    function addMessage(text) {
+    }    
+    
+    async function addMessage(text) {
         if(!userData.messages) userData.messages = [];
         const now = new Date();
         const dateStr = now.toLocaleDateString('fr-FR') + " " + now.toLocaleTimeString('fr-FR');
         userData.messages.unshift({ text: text, date: dateStr });
-    }
-
+    
+        // Sa ap mete ekran an jou epi tou sove mesaj la ak tout solde kòb la nan Firestore
+        if (typeof updateUI === 'function') updateUI();
+     await saveData();
+    }  
     function toggleMsgBox() {
         const m = document.getElementById('msgModal');
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
