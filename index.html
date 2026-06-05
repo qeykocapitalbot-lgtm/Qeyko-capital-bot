@@ -665,7 +665,6 @@ const TRONGRID_API_KEY = "7cc785b3-6906-43fd-bcfb-70d14fd68fce";
         const { doc, setDoc } = window._fbFns;
         await setDoc(doc(window._db, "users", String(tgUser.id)), userData);
     }
-
     function fillAllBalance() {
         const fullBal = (userData.balance || 0).toFixed(2);
         document.getElementById('retraitMontant').value = fullBal;
