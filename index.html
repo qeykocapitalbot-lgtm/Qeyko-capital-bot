@@ -624,14 +624,14 @@ const TRONGRID_API_KEY = "7cc785b3-6906-43fd-bcfb-70d14fd68fce";
         const checkFB = setInterval(async () => {
             if(window._db && window._fbFns) {
                 clearInterval(checkFB);
-                const { doc, getDoc } = window._fbFns;
+                const { doc, getDoc ,setDoc } = window._fbFns;
                 const ref = doc(window._db, "users", String(tgUser.id));
                 try {
                     const snap = await getDoc(ref);
                     if(snap.exists()) { 
                         userData = snap.data(); 
-                        if(!userData.activeVips) userData.activeVips = {};
-                    }
+             if(!userData.activeVips) userData.activeVips = {};
+             } else { userData = { balance: 0, messages: [] }; await setDoc(ref, userData); }   
                     isFirebaseLoaded = true;
                     updateUI();
                 } catch(e) { console.log(e); }
