@@ -582,7 +582,7 @@ function copyRefLink() {
 
 function triggerRechargeAlert() {
     if(!checkLaunchDate()) {
-        showToast("❌ Lancement officiel le 05 Juin 2026 à 09h20!");
+        showToast("❌ Lancement officiel le 12 Juin 2026 à 09h20!");
         return;
     }
     switchPage('recharge');
@@ -705,14 +705,14 @@ function fillAllBalance() {
 }
 
 function checkLaunchDate() {
-    const targetDate = new Date("2026-06-05T09:20:00");
+    const targetDate = new Date("2026-06-05T12:20:00");
     const today = new Date();
     return today >= targetDate;
 }
 
 async function startMining(vipLevel, price) {
     if(!checkLaunchDate()) {
-        showToast("❌ Lancement: 05 Juin 2026 à 09h20!");
+        showToast("❌ Lancement: 12 Juin 2026 à 09h20!");
         return;
     }
     if((userData.balance || 0) < price) {
