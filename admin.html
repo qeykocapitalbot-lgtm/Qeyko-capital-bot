@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - QeykocaputaBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-MfhsLGezx1v5Lx1pxOTzGf7V0PcKQqs",
+            authDomain: "qeyko-capital-bot.firebaseapp.com",
+            projectId: "qeyko-capital-bot",
+            storageBucket: "qeyko-capital-bot.firebasestorage.app",
+            messagingSenderId: "299374324488",
+            appId: "1:299374324488:web:de1550eb9c845cc6ca9abd"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        window._db = db;
+        window._fbAdminFns = { collection, getDocs, doc, updateDoc };
+    </script>
+
+    <style>
+        :root {
+            --primary: #0066FF;
+            --dark: #111827;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --border: #E5E7EB;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding: 20px; }
+
+        /* Login Screen */
+        .login-container { max-width: 400px; margin: 100px auto; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
+        .input-ctrl { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; text-align: center; }
+        .btn-action { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1rem; }
+
+        /* Admin Dashboard UI */
+        .admin-panel { display: none; max-width: 1200px; margin: 0 auto; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-card h3 { font-size: 0.85rem; color: #6B7280; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card p { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: #F9FAFB; font-weight: 700; color: #374151; }
+        tr:hover { background: #F9FAFB; }
+
+        .badge-status { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .status-online { background: #DEF7EC; color: #03543F; }
+        .status-offline { background: #E5E7EB; color: #374151; }
+
+        .btn-edit { background: #E5E7EB; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .btn-edit:hover { background: #D1D5DB; }
+        .btn-refresh { background: #10B981; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container" id="loginScreen">
+        <h2>🔒 Qeyko Admin</h2>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">Entrez le mot de passe pour accéder aux données</p>
+        <input type="password" id="adminPass" class="input-ctrl" placeholder="Mot de passe admin">
+        <button class="btn-action" onclick="verifyAdminPassword()">Connexion</button>
+        <p id="loginError" style="color: red; font-size: 0.85rem; margin-top: 10px; display: none;">❌ Mot de passe incorrect !</p>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <div>
+                <h1>📊 Panel Administrateur</h1>
+                <p style="color: #6B7280; font-size: 0.9rem;">Gestion globale des utilisateurs et des finances</p>
+            </div>
+            <button class="btn-refresh" onclick="fetchAllUsers()">🔄 Actualiser</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Utilisateurs</h3>
+                <p id="statTotalUsers">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Argent Total sur le Bot</h3>
+                <p id="statTotalBalance">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Cumul des Dépôts</h3>
+                <p id="statTotalDeposits" style="color: #10B981;">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Cumul des Retraits</h3>
+                <p id="statTotalWithdraws" style="color: #EF4444;">$0.00</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Telegram</th>
+                        <th>Adresse Portefeuille</th>
+                        <th>Solde Actuel</th>
+                        <th>Total Déposé</th>
+                        <th>Total Retiré</th>
+                        <th>Statut Connexion</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #888;">Chargement des utilisateurs...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    // MODPAS ADMIN PA DÉFAUT
+    const SECRET_ADMIN_PASSWORD = "4115kb";
+
+    function verifyAdminPassword() {
+        const inputPass = document.getElementById('adminPass').value;
+        const errorEl = document.getElementById('loginError');
+        
+        if (inputPass === SECRET_ADMIN_PASSWORD) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            startFirebaseCheck();
+        } else {
+            errorEl.style.display = 'block';
+        }
+    }
+
+    function startFirebaseCheck() {
+        const checkFB = setInterval(() => {
+            if (window._db && window._fbAdminFns) {
+                clearInterval(checkFB);
+                fetchAllUsers();
+            }
+        }, 200);
+    }
+    // FONKSYON KI RALE TOUT ITILIZATÈ YO SOU FIREBASE
+    async function fetchAllUsers() {
+        if (!window._db || !window._fbAdminFns) return;
+        
+        const { collection, getDocs } = window._fbAdminFns;
+        const tableBody = document.getElementById('usersTableBody');
+        
+        try {
+            const querySnapshot = await getDocs(collection(window._db, "users"));
+            
+            let totalUsers = 0;
+            let totalDeposits = 0;
+            let totalWithdraws = 0;
+            let htmlRows = "";
+
+            querySnapshot.forEach((docSnap) => {
+                const user = docSnap.data();
+                const userId = docSnap.id;
+                
+                // Kalkil Statistik
+                totalUsers++;
+                totalDeposits += parseFloat(user.totalDeposit || 0);
+                totalWithdraws += parseFloat(user.totalWithdraw || 0);
+
+                // Klasifikasyon Badge Status la
+                const statusBadge = user.isConnected 
+                    ? `<span class="badge-status status-online">Connecté</span>` 
+                    : `<span class="badge-status status-offline">Déconnecté</span>`;
+
+                // PRAN ADRÈS AK MODPAS RETRÈ NOU SOT KONEKTE YO
+                const adresseRetrait = user.lastRetraitAddr || user.savedAddr || 'Aucune';
+                const modpasRetrait = user.lastRetraitPassword || user.password || 'Aucun';
+
+                // PRAN DÈNYE TRANSAKSYON AN SI LI EGZISTE
+                let denyeTransaksyon = "Aucune";
+                if (user.transactions && user.transactions.length > 0) {
+                    denyeTransaksyon = `${user.transactions[0].title} (${user.transactions[0].date})`;
+                }
+
+                // Konstwi ranje pou chak kliyan (Nou ajoute Modpas ac Dènye Transaksyon)
+                htmlRows += `
+                    <tr>
+                        <td style="font-weight: 700;">${userId}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem; color: #555;">
+                            <b>Adresse:</b> ${adresseRetrait}<br>
+                            <span style="color: #7c3aed;"><b>Pass:</b> ${modpasRetrait}</span>
+                        </td>
+                        <td style="font-weight: 700; color: #0066FF;">$${(user.balance || 0).toFixed(2)}</td>
+                        <td style="color: #10B981;">$${(user.totalDeposit || 0).toFixed(2)}</td>
+                        <td style="color: #EF4444;">$${(user.totalWithdraw || 0).toFixed(2)}</td>
+                        <td>
+                            ${statusBadge}<br>
+                            <small style="color: #6b7280; font-size: 0.75rem; display: block; margin-top: 4px;">${denyeTransaksyon}</small>
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="modifyUserBalance('${userId}', ${user.balance || 0})">Modifier</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // LOJIK KÒRÈK POU KÈS LA (Depo - Retrè)
+            let totalBalance = totalDeposits - totalWithdraws;
+            if (totalBalance < 0) { totalBalance = 0; }
+
+            // Mizajou Dashboard UI a
+            document.getElementById('statTotalUsers').textContent = totalUsers;
+            document.getElementById('statTotalBalance').textContent = "$" + totalBalance.toFixed(2);
+            document.getElementById('statTotalDeposits').textContent = "$" + totalDeposits.toFixed(2);
+            document.getElementById('statTotalWithdraws').textContent = "$" + totalWithdraws.toFixed(2);
+            
+            tableBody.innerHTML = htmlRows || `<tr><td colspan="7" style="text-align: center; color: #888;">Aucun utilisateur trouvé dans la base de données.</td></tr>`;
+
+        } catch (error) {
+            console.error("Erreur lors de la récupération :", error);
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Erreur de chargement Firebase.</td></tr>`;
+        }
+    }
+
+    // FONKSYON POU MODIFYE KÒB SOU KONT YON KLIYAN DEPONS SOU PANEL LA
+    async function modifyUserBalance(userId, currentBalance) {
+        const newBalance = prompt(`Modifier le solde de l'utilisateur ${userId} :\nSolde actuel : $${currentBalance.toFixed(2)}`, currentBalance);
+        
+        if (newBalance === null || isNaN(newBalance)) return;
+
+        const { doc, updateDoc } = window._fbAdminFns;
+        const userRef = doc(window._db, "users", String(userId));
+
+        try {
+            await updateDoc(userRef, {
+                balance: parseFloat(newBalance)
+            });
+            alert(`✅ Solde mis à jour avec succès pour l'utilisateur ${userId} !`);
+            fetchAllUsers(); // Refresh otomatik
+        } catch (error) {
+            alert("❌ Erreur lors de la modification du solde.");
+            console.error(error);
+        }
+    }
+</script>
+</body>
+</html>
